@@ -66,4 +66,13 @@ Matrix Matrix::operator-(const Matrix& other) const {
     return result;
 }
 
-Matrix transpose() const;
+Matrix Matrix::transpose() const{
+    Matrix result(columns, rows);
+
+    for(size_t i = 0; i < rows; i++){
+        for(size_t j = 0; j < columns; j++){
+            result(j, i) = (*this)(i, j);
+        }
+    }
+    return result;
+}
