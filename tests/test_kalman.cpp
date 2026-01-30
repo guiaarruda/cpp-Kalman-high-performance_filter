@@ -43,10 +43,11 @@ int main(){
     }
     kft.setInitialState(x0, P0);
 
-    cout << "Time |   X   | X Measured | X Estimated (Kalman)" << endl;
-    cout << "--------------------------------------------" << endl;
 
-    for(int i = 0; i < 15; ++i){
+    std::ofstream file("results.csv");
+    file << "time,x,measured_x,estimated_x(kalman)\n";
+
+    for(int i = 0; i < 50; ++i){
         particle.update(dt);
         Matrix real = particle.getTrueState();
         Matrix meas = particle.measure();
@@ -56,8 +57,11 @@ int main(){
 
         Matrix estimated = kft.getState();
 
-        cout << fixed << setprecision(2) << (i+1)*dt << "s| " << real(0,0) 
-        << "  | " << meas(0,0) << "       | " << estimated(0,0) << endl;
+        file << (i+1)*dt << "," << real(0,0) 
+        << "," << meas(0,0) << "," << estimated(0,0) << "\n";
     }
+    file.close();
+    cout << "Data saved at 'results.csv'" << endl;
+
     return 0;
 }
