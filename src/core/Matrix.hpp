@@ -27,6 +27,9 @@ public:
     Matrix operator-(const Matrix& other) const;
 
     Matrix transpose() const;
+
+    Matrix inverse() const;
+    static Matrix indentity(size_t size);
     void print() const;
 };
 

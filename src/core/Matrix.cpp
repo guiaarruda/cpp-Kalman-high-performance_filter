@@ -1,4 +1,5 @@
 #include"Matrix.hpp"
+#include<cmath>
 
 Matrix::Matrix(size_t r, size_t c, double initial_value)
     : rows(r), columns(c), data(r * c, initial_value) {}
@@ -72,6 +73,57 @@ Matrix Matrix::transpose() const{
     for(size_t i = 0; i < rows; i++){
         for(size_t j = 0; j < columns; j++){
             result(j, i) = (*this)(i, j);
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::indentity(size_t size){
+    Matrix I(size, size, 0.0);
+    for(size_t i = 0; i < size; i++){
+        I(i,i) = 1.0;
+    }
+    return I;
+}
+
+Matrix Matrix::inverse() const{
+    if(rows != columns){
+        throw std::invalid_argument("Matrix must be square to calculate inverse");
+    }
+    size_t n = rows;
+    Matrix augumented = *this;
+    Matrix result = indentity(n);
+
+    for(int j = 0; j < n; ++j){
+        size_t pivot = j;
+        for(size_t i = j + 1; i < n; ++i){
+            if(std::abs(augumented(i,j)) > std::abs(augumented(pivot, j))){
+                pivot = i;
+            }
+        }
+        if(std::abs(augumented(pivot, j)) < 1e-9){
+            throw std::runtime_error("Matrix is singular (non-invertible)");
+        }
+        if(pivot != j){
+            for(size_t k = 0; k < n; ++k){
+                std::swap(augumented.data[j * n + k], augumented.data[pivot * n + k]);
+                std::swap(result.data[j * n + k], result.data[pivot * n + k]);
+            }
+        }
+        double pivotValue = augumented(j,j);
+        double invPivot = 1.0 / pivotValue;
+        for(size_t k = 0; k < n; ++k) {
+            augumented(j,k) *= invPivot;
+            result(j,k) *= invPivot;
+        }
+        for(size_t i = 0; i < n; ++i){
+            if(i != j) {
+                double factor = augumented(i,j);
+                for(size_t k = 0; k < n; ++k){
+                    augumented(i, k) -= factor *augumented(j,k);
+                    result(i,k) -= factor * result(j,k);
+                }
+            }
         }
     }
     return result;
