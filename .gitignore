@@ -1,0 +1,31 @@
+# --- C++ Build Artifacts ---
+# Executables
+kalman
+run_kalman
+test
+test_matrix
+simulation
+test_matrixmultiplication
+test_matrixtranspose
+*.out
+*.exe
+
+# Object files
+*.o
+
+# --- Data & Outputs ---
+results.csv
+*.png
+
+# --- Python ---
+# Virtual Environment
+venv/
+env/
+# Bytecode cache
+__pycache__/
+*.pyc
+
+# --- IDE Settings ---
+.vscode/
+.idea/
+.DS_Store
