@@ -33,13 +33,19 @@ Matrix Matrix::operator*(const Matrix& other) const {
         throw std::invalid_argument("Matrix dimensions are incompatible");
     }
 
+    const size_t n = other.columns;
+    Matrix result(rows, n, 0.0);
 
-    Matrix result(rows, other.columns, 0.0);
-
+    // i-k-j loop order: the innermost loop walks rows of `other` and `result`
+    // contiguously in memory, instead of striding down a column of `other`.
+    // Raw indexing skips the bounds check, which is already guaranteed above.
     for(size_t i = 0; i < rows; i++){
-        for(size_t j = 0; j < other.columns; j++){
-            for(size_t k = 0; k < columns; k++){
-                result(i, j) += (*this)(i, k) * other(k, j);
+        double* result_row = &result.data[i * n];
+        for(size_t k = 0; k < columns; k++){
+            const double a_ik = data[i * columns + k];
+            const double* other_row = &other.data[k * n];
+            for(size_t j = 0; j < n; j++){
+                result_row[j] += a_ik * other_row[j];
             }
         }
     }
@@ -72,13 +78,13 @@ Matrix Matrix::transpose() const{
 
     for(size_t i = 0; i < rows; i++){
         for(size_t j = 0; j < columns; j++){
-            result(j, i) = (*this)(i, j);
+            result.data[j * rows + i] = data[i * columns + j];
         }
     }
     return result;
 }
 
-Matrix Matrix::indentity(size_t size){
+Matrix Matrix::identity(size_t size){
     Matrix I(size, size, 0.0);
     for(size_t i = 0; i < size; i++){
         I(i,i) = 1.0;
@@ -91,37 +97,38 @@ Matrix Matrix::inverse() const{
         throw std::invalid_argument("Matrix must be square to calculate inverse");
     }
     size_t n = rows;
-    Matrix augumented = *this;
-    Matrix result = indentity(n);
+    Matrix augmented = *this;
+    Matrix result = identity(n);
 
-    for(int j = 0; j < n; ++j){
+    for(size_t j = 0; j < n; ++j){
         size_t pivot = j;
         for(size_t i = j + 1; i < n; ++i){
-            if(std::abs(augumented(i,j)) > std::abs(augumented(pivot, j))){
+            if(std::abs(augmented(i,j)) > std::abs(augmented(pivot, j))){
                 pivot = i;
             }
         }
-        if(std::abs(augumented(pivot, j)) < 1e-9){
+        if(std::abs(augmented(pivot, j)) < 1e-9){
             throw std::runtime_error("Matrix is singular (non-invertible)");
         }
         if(pivot != j){
             for(size_t k = 0; k < n; ++k){
-                std::swap(augumented.data[j * n + k], augumented.data[pivot * n + k]);
+                std::swap(augmented.data[j * n + k], augmented.data[pivot * n + k]);
                 std::swap(result.data[j * n + k], result.data[pivot * n + k]);
             }
         }
-        double pivotValue = augumented(j,j);
+        double pivotValue = augmented(j,j);
         double invPivot = 1.0 / pivotValue;
         for(size_t k = 0; k < n; ++k) {
-            augumented(j,k) *= invPivot;
+            augmented(j,k) *= invPivot;
             result(j,k) *= invPivot;
         }
         for(size_t i = 0; i < n; ++i){
             if(i != j) {
-                double factor = augumented(i,j);
+                double factor = augmented(i,j);
+                if(factor == 0.0) continue;
                 for(size_t k = 0; k < n; ++k){
-                    augumented(i, k) -= factor *augumented(j,k);
-                    result(i,k) -= factor * result(j,k);
+                    augmented.data[i * n + k] -= factor * augmented.data[j * n + k];
+                    result.data[i * n + k] -= factor * result.data[j * n + k];
                 }
             }
         }

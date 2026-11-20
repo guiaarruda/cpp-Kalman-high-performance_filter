@@ -3,6 +3,9 @@
 #include "../core/Matrix.hpp"
 
 class Particle{
+public:
+    // Standard deviation of the Gaussian noise added to each position measurement.
+    static constexpr double MEASUREMENT_NOISE_STD = 0.5;
 private:
     Matrix real_state;
 public:

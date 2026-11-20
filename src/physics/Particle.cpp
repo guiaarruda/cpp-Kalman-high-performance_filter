@@ -4,7 +4,7 @@ using namespace std;
 
 static random_device rd;
 static mt19937 gen(rd());
-static normal_distribution<> noise_dist(0.0, 0.5);
+static normal_distribution<> noise_dist(0.0, Particle::MEASUREMENT_NOISE_STD);
 
 Particle::Particle(double x, double y, double vx, double vy)
     : real_state(4, 1){
