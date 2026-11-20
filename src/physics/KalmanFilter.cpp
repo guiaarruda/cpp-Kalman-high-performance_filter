@@ -2,7 +2,7 @@
 
 KalmanFilter::KalmanFilter(int state_dim, int meas_dim)
     : x(state_dim, 1), P(state_dim, state_dim), F(state_dim, state_dim), Q(state_dim, state_dim),
-    H(meas_dim, state_dim), R(meas_dim, meas_dim), I(Matrix::indentity(state_dim)){}
+    H(meas_dim, state_dim), R(meas_dim, meas_dim), I(Matrix::identity(state_dim)){}
 
 void KalmanFilter::predict(){
     x = F * x;
