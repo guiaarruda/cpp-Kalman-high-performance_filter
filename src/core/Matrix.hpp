@@ -6,9 +6,9 @@
 
 class Matrix {
 private:
-    std::vector<double> data;
     size_t rows;
     size_t columns;
+    std::vector<double> data;
 public:
     Matrix(size_t r, size_t c, double initial_value = 0.0);
 
@@ -23,6 +23,7 @@ public:
     }   
     
     Matrix operator*(const Matrix& other) const;
+    Matrix multiplyNaive(const Matrix& other) const;
     Matrix operator+(const Matrix& other) const;
     Matrix operator-(const Matrix& other) const;
 
