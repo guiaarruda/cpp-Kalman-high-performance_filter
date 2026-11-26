@@ -1,14 +1,13 @@
 # --- C++ Build Artifacts ---
 # Executables
 kalman
-run_kalman
-test
-test_matrix
-simulation
-test_matrixmultiplication
-test_matrixtranspose
-*.out
-*.exe
+test_matrix_assert
+test_matrix_asserts
+monte_carlo
+bench
+t_asan
+core
+a.out
 
 # Object files
 *.o

@@ -28,7 +28,7 @@ void Matrix::print() const {
     }
 }
 
-Matrix Matrix::operator*(const Matrix& other) const {
+Matrix Matrix::multiplyNaive(const Matrix& other) const {
     if(columns != other.rows){
         throw std::invalid_argument("Matrix dimensions are incompatible");
     }
@@ -40,6 +40,30 @@ Matrix Matrix::operator*(const Matrix& other) const {
         for(size_t j = 0; j < other.columns; j++){
             for(size_t k = 0; k < columns; k++){
                 result(i, j) += (*this)(i, k) * other(k, j);
+            }
+        }
+    }
+    return result;
+}
+Matrix Matrix::operator*(const Matrix& other) const{
+    if(columns != other.rows){
+        
+        throw std::invalid_argument("Matrix dimensions are incompatible");
+    }
+    const size_t n = rows, m = columns, p = other.columns;
+    Matrix result(n, p, 0.0);
+
+    const double* A = data.data();
+    const double* B = other.data.data();
+    double* C = result.data.data();
+
+    for(size_t k = 0; k < n; ++k){
+        double* Ck = C + k * p;
+        for(size_t w = 0; w < m; ++w){
+            const double a = A[k * m + w];
+            const double* Bk = B + w  * p;
+            for(size_t z = 0; z < p; ++z){
+                Ck[z] += a * Bk[z];
             }
         }
     }
@@ -94,7 +118,7 @@ Matrix Matrix::inverse() const{
     Matrix augumented = *this;
     Matrix result = indentity(n);
 
-    for(int j = 0; j < n; ++j){
+    for(size_t j = 0; j < n; ++j){
         size_t pivot = j;
         for(size_t i = j + 1; i < n; ++i){
             if(std::abs(augumented(i,j)) > std::abs(augumented(pivot, j))){
